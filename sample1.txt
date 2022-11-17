@@ -1,0 +1,480 @@
+//**********Fractional Knapsack***********
+#include<iostream>
+#include<bits/stdc++.h>
+using namespace std;
+
+
+struct object
+{
+    int profit;
+    int weight;
+    object(int profit,int weight)
+    :profit(profit),weight(weight)
+        {
+    }
+    /* data */
+};
+int cmp(struct object a,struct object b){
+    float temp1,temp2;
+    temp1=(float)a.profit/a.weight;
+    temp2=(float)b.profit/b.weight;
+    return temp1>temp2;
+}
+int cmp1(struct object a,struct object b){
+    return a.weight<b.weight;
+}
+int cmp2(struct object a,struct object b){
+    return a.profit>b.profit;
+}
+
+float knapsack(struct object a[],int k_capacity,int size){
+    int curr_wt=0;
+    float total_profit=0,r_capacity;
+    sort(a,a+size,cmp);
+     
+    for(int i=0;i<size;i++){
+
+        if(curr_wt+a[i].weight<=k_capacity){
+            curr_wt=curr_wt+a[i].weight;
+            total_profit=total_profit+a[i].profit;
+        }
+        else{
+            r_capacity=k_capacity-curr_wt;
+            total_profit=total_profit+(float)(r_capacity*a[i].profit/a[i].weight);
+            break;
+        }
+    }
+    return total_profit;
+}
+float knapsack1(struct object a[],int k_capacity,int size){
+    int curr_wt=0;
+    float total_profit=0,r_capacity;
+    sort(a,a+size,cmp1);
+
+    for(int i=0;i<size;i++){
+
+        if(curr_wt+a[i].weight<=k_capacity){
+            curr_wt=curr_wt+a[i].weight;
+            total_profit=total_profit+a[i].profit;
+        }
+        else{
+            r_capacity=k_capacity-curr_wt;
+            total_profit=total_profit+(float)(r_capacity*a[i].profit/a[i].weight);
+            break;
+        }
+    }
+    return total_profit;
+
+}
+float knapsack2(struct object a[],int k_capacity,int size){
+    int curr_wt=0;
+    float total_profit=0,r_capacity;
+    sort(a,a+size,cmp2);
+
+    for(int i=0;i<size;i++){
+
+        if(curr_wt+a[i].weight<=k_capacity){
+            curr_wt=curr_wt+a[i].weight;
+            total_profit=total_profit+a[i].profit;
+        }
+        else{
+            r_capacity=k_capacity-curr_wt;
+            total_profit=total_profit+(float)(r_capacity*a[i].profit/a[i].weight);
+            break;
+        }
+    }
+    return total_profit;
+
+}
+
+int main() {
+    int k_capacity=25;
+    
+    object a[]={{24,24},{18,10},{18,10},{10,7}};
+    int size=sizeof(a)/sizeof(a[0]);
+
+    cout<<"Total Profit using Case 1(min weight):";
+    cout<<"\nTotal Profit:"<<knapsack1(a,k_capacity,size);
+
+    cout<<"\nTotal Profit using Case 2(max Profit):";
+    cout<<"\nTotal Profit:"<<knapsack2(a,k_capacity,size);
+    
+    cout<<"\nTotal Profit using Case 3:";
+    cout<<"\nTotal Profit:"<<knapsack(a,k_capacity,size);
+
+   
+    return 0;
+}
+//***********0/1 Knapsack**********
+#include<iostream>
+using namespace std;
+
+int max(int a,int b){
+    if(a>b)
+    return a;
+    else
+    return b;
+}
+
+int knapsack(int p[],int w[],int n,int k_capacity){
+    int i,j;
+    int a[n+1][k_capacity+1];
+    
+    for(i=0;i<=n;i++){
+        for(j=0;j<=k_capacity;j++){
+            if(i==0 || j==0)
+            a[i][j]=0;
+
+            else if(w[i-1]<=j){
+                a[i][j]=max(a[i-1][j],(a[i-1][j-w[i-1]]+p[i-1]));
+            }
+
+            else{
+                a[i][j]=a[i-1][j];
+            }
+        }
+    }
+    
+
+    for(i=0;i<=n;i++){
+        for(j=0;j<=k_capacity;j++){
+            cout<<a[i][j]<<"\t";
+        }
+        cout<<endl;
+    }
+    cout<<"\nTotal Profit Obtained from 0/1 Knapsack Algorithm:\t";
+    return a[n][k_capacity];
+}
+
+int main() {
+    int n,k_capacity,p[10],w[10];
+    cout<<"Enter total no. of objects:\t";
+    cin>>n;
+    cout<<"Enter capacity:";
+    cin>>k_capacity;
+    cout<<"Enter Profits:\t";
+    for(int i=0;i<n;i++){
+        cin>>p[i];
+    }
+
+    cout<<"Enter weights:\t";    
+    for(int i=0;i<n;i++){
+        cin>>w[i];
+    }
+
+
+    
+    cout<<knapsack(p,w,n,k_capacity);
+    
+
+    return 0;
+}
+//*************Bellman fort**********
+#include<iostream>
+#include<vector>
+using namespace std;
+struct node
+{
+int u;
+int v;
+int wt;
+node(int u,int v,int wt) 
+{
+this->u=u;
+this->v=v;
+this->wt=wt;
+}
+};
+int main()
+{
+int n,m; 
+cout<<"Enter the number of vertices: "<<endl;
+cin>>n;
+cout<<"Enter the number of edges: "<<endl;
+cin>>m;
+
+int u,v,wt;
+vector<node> edges;
+cout<<"Enter the source,vertex and weight: "<<endl;
+cout<<"\tu"<<"\tv"<<"\twt"<<endl;
+for(int i=0;i<m;i++)
+{
+cin>>u>>v>>wt;
+edges.push_back(node(u,v,wt));
+}
+int src;
+cout<<"Enter the source: "<<endl; 
+cin>>src;
+int inf=100000;
+vector<int> dist(n,inf); 
+dist[src]=0; 
+for(int i=0;i<=n-1;i++)
+{
+
+for(auto it:edges) 
+{
+if(dist[it.u] + it.wt < dist[it.v])
+{
+ dist[it.v] = dist[it.u] + it.wt;
+ }
+}
+}
+
+int f=0;
+for(auto it:edges)
+{
+if(dist[it.u]+it.wt<dist[it.v]) 
+{
+cout<<"Graph contains negative-weight cycle"<<endl;
+f=1;
+break;
+}
+}
+
+if(!f)
+{
+for(int i=1;i<=n;i++)
+{
+ cout<<"Corresponding vertex and its distance from source: "<<endl;
+cout<<i<<" "<<dist[i]<<endl;
+}
+}
+return 0;
+}
+//*****************N Queen***********
+#include<iostream>
+using namespace std;
+ int grid[10][10];
+ 
+ void print( int n )
+ {
+     for(int i=0;i<=n-1;i++)
+     {
+         for(int j=0;j<=n-1;j++)
+         {
+            cout<< grid[i][j]<<" ";
+         }
+         cout<<endl;
+     }
+     cout<<endl;
+     cout<<endl;
+ }
+ 
+ bool issafe(int col,int row, int n)
+ {
+     //col
+     for(int i=0;i<row;i++)
+     {
+         if(grid[i][col])
+         {
+             
+             return false;
+         }
+     }
+     //left
+     for(int i =row,j=col;i>=0&&j>=0;i--,j--)
+     {
+         if(grid[i][j])
+         {
+             return false;
+         }
+     }
+      for(int i =row,j=col;i>=0&&j<n;i--,j++)
+     {
+         if(grid[i][j])
+         {
+             return false;
+         }
+     }
+     
+    return true; 
+ }
+ 
+ bool solve(int n,int row)
+ {
+     if(n==row)
+     {
+         print(n);
+         return true;
+     }
+     
+     bool res=false;
+ 
+     for(int i=0;i<=n-1;i++){
+         if(issafe(i,row,n))
+         {
+             grid[row][i]=1;
+             res=solve(n,row+1)||res;
+             grid[row][i]=0;
+             
+         }
+         
+     }
+         return res;
+     }
+     
+     int main()
+     {
+         int n;
+          cout<<"no of queens"<<endl;
+            cin>>n;
+            for(int i=0;i<n;i++)
+            {
+                for(int j=0;j<n;j++)
+                {
+                    
+                    grid[i][j]=0;
+                }
+            }
+         
+        bool res=solve(n,0);
+        if(res==false)
+        {
+            
+            cout<<-1;
+        }
+        else
+        {
+            cout<<endl;
+        }
+        return 0;
+     }
+ //************TSP*********
+#include <iostream>
+#include <bits/stdc++.h>
+using namespace std;
+const int N = 4;
+
+int final_path[N+1];
+bool visited[N];
+
+int final_res = INT_MAX;
+
+void copyToFinal(int curr_path[])
+{
+for (int i=0; i<N; i++)
+final_path[i] = curr_path[i];
+final_path[N] = curr_path[0];
+}
+
+int firstMin(int adj[N][N], int i)
+{
+int min = INT_MAX;
+for (int k=0; k<N; k++)
+if (adj[i][k]<min && i != k)
+min = adj[i][k];
+return min;
+}
+
+int secondMin(int adj[N][N], int i)
+{
+int first = INT_MAX, second = INT_MAX;
+for (int j=0; j<N; j++)
+{
+if (i == j)
+continue;
+if (adj[i][j] <= first)
+{
+second = first;
+first = adj[i][j];
+}
+else if (adj[i][j] <= second &&
+adj[i][j] != first)
+second = adj[i][j];
+}
+return second;
+}
+
+void TSPRec(int adj[N][N], int curr_bound, int curr_weight,
+int level, int curr_path[])
+{
+
+if (level==N)
+{
+
+if (adj[curr_path[level-1]][curr_path[0]] != 0)
+{
+
+int curr_res = curr_weight +
+adj[curr_path[level-1]][curr_path[0]];
+
+if (curr_res < final_res)
+{
+copyToFinal(curr_path);
+final_res = curr_res;
+}
+}
+return;
+}
+
+for (int i=0; i<N; i++)
+{
+
+if (adj[curr_path[level-1]][i] != 0 &&
+visited[i] == false)
+{
+int temp = curr_bound;
+curr_weight += adj[curr_path[level-1]][i];
+
+if (level==1)
+curr_bound -= ((firstMin(adj, curr_path[level-1]) +
+firstMin(adj, i))/2);
+else
+curr_bound -= ((secondMin(adj, curr_path[level-1]) +
+firstMin(adj, i))/2);
+
+if (curr_bound + curr_weight < final_res)
+{
+curr_path[level] = i;
+visited[i] = true;
+
+TSPRec(adj, curr_bound, curr_weight, level+1,
+curr_path);
+}
+
+curr_weight -= adj[curr_path[level-1]][i];
+curr_bound = temp;
+
+memset(visited, false, sizeof(visited));
+for (int j=0; j<=level-1; j++)
+visited[curr_path[j]] = true;
+}
+}
+}
+
+void TSP(int adj[N][N])
+{
+int curr_path[N+1];
+
+int curr_bound = 0;
+memset(curr_path, -1, sizeof(curr_path));
+memset(visited, 0, sizeof(curr_path));
+
+for (int i=0; i<N; i++)
+curr_bound += (firstMin(adj, i) +
+secondMin(adj, i));
+
+curr_bound = (curr_bound&1)? curr_bound/2 + 1 :
+curr_bound/2;
+
+visited[0] = true;
+curr_path[0] = 0;
+
+TSPRec(adj, curr_bound, 0, 1, curr_path);
+}
+
+int main()
+{
+
+int adj[N][N] = { {0, 10, 15, 20},
+{10, 0, 25, 35},
+{20, 10, 0, 30},
+{10, 50, 12, 0}
+};
+TSP(adj);
+ cout<<"Minimum cost: "<<final_res;
+ cout<<"Path Taken: "<<endl;
+for (int i=0; i<=N; i++)
+ cout<<" ->"<<final_path[i];
+return 0;
+}
