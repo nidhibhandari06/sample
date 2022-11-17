@@ -1,0 +1,263 @@
+//********Data Preparation********
+import pandas as pd
+df = pd.read_csv("/content/Heart.csv")
+print(df)
+df.head(303)
+shape = df.shape
+print(shape)
+print(df.notnull())
+result = df.isna().sum()
+print(result)
+result = df.isna().sum().sum()
+print(result)
+datatypes = df.dtypes
+print(datatypes)
+c=(df==0).sum(axis=1)
+print(c)
+print(df['Age'].mean())
+new_df = df.filter(['Age','Sex','ChestPain','RestBP','Ch
+ol'])
+print(new_df)
+
+//*********Regression Technique*******
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+temp = pd.read_csv("/content/temperatures.csv")
+print(temp)
+temp.head()
+temp.dtypes
+temp.columns
+temp.describe()
+temp.isnull().sum()
+print("Print the graph of top values.")
+n=int(input("Enter the value: "))
+top_n_data = temp.nlargest(n, "ANNUAL")
+plt.figure(figsize=(10,10))
+plt.title("Top temperature records")
+sns.barplot(x=top_n_data.YEAR, y=top_n_data.ANNUAL)
+from sklearn import linear_model, metrics
+a=temp[["YEAR"]]
+b=temp[["JAN"]]
+from sklearn.model_selection import train_test_split
+a_train,a_test,b_train,b_test = train_test_split(a,b, te
+st_size=0.2, random_state=1)
+len(a_train)
+temp.shape
+lr = linear_model.LinearRegression()
+print(a_train)
+model=lr.fit(a_train, b_train)
+r_sq=lr.score(a_train,b_train)
+model.intercept_
+model.coef_
+b_pred=model.predict(a_test)
+print(b_pred)
+plt.scatter(a_train,b_train, color="cyan")
+plt.plot(a_train, lr.predict(a_train), color="red", line
+width=1)
+plt.title("Temp vs Year")
+plt.xlabel("Year")
+plt.ylabel("Temperature")
+plt.show()
+plt.scatter(a_test, b_test, color='blue')
+plt.plot(a_test, lr.predict(a_test), color='yellow', lin
+ewidth=1)
+plt.title("Temp vs Year")
+plt.xlabel("Year")
+plt.ylabel("Temperature")
+plt.show()
+//*************Classification Technique**********
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+gre = pd.read_csv("/home/ak-linux-computer/Documents/admission.csv")
+gre.head()
+print(gre)
+gre.describe
+gre=gre.rename(columns={"TOEFL Score":"TOEFL"})
+gre=gre.rename(columns={"University Rating":"univ_rating"})
+gre=gre.rename(columns={"Serial No.":"ID"})
+gre=gre.rename(columns={"Chance of Admit ":"Admission chance"})
+gre.columns
+sns.pairplot(data=gre)
+plt.figure(figsize=(12,12))
+sns.lineplot(data=gre, x="GRE Score",y="TOEFL", hue="Research")
+plt.figure(figsize=(12,12))
+h = sns.scatterplot(data=gre, x="CGPA", y="ID", hue="Research")
+s = sns.FacetGrid(data = gre, col="Research", row="univ_rating", hue="LOR ")
+s.map(sns.scatterplot, "CGPA","ID")
+s.add_legend()
+sns.catplot(data=gre, x="Research", y="Admission chance", hue="univ_rating")
+plt.figure(figsize=(12,12))
+sns.heatmap(gre.corr(), annot=True,cmap="cubehelix")
+from sklearn.model_selection import train_test_split
+a = gre.drop("Admission chance", axis =1)
+b = gre["Admission chance"]
+a
+b
+a_train,a_test,b_train,b_test = train_test_split(a,b, test_size=0.2, random_state=1)
+from sklearn import linear_model
+lr = linear_model.LinearRegression()
+lr.fit(a_train,b_train)
+pred = lr.predict(a_test)
+from sklearn.metrics import classification_report, confusion_matrix, r2_score
+lr.intercept_
+coef = pd.DataFrame(lr.coef_, a.columns, columns = ['coef'])
+coef
+r2 = r2_score(b_test, pred)
+print("r2 score:" ,r2)
+predd = pd.DataFrame(pred)
+frames = [gre,predd]
+pred_values = pd.concat(frames, axis=1)
+pred_values.columns
+pred_values.head()
+
+
+//************Association Rule learning********
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+import networkx as nx
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+import matplotlib.pyplot as plt
+plt.style.use("default")
+!pip install --upgrade plotly
+mrk=pd.read_csv("/content/Market_Basket_Optimisation.csv")
+mrk.shape
+mrk.head()
+mrk.describe()
+transaction = []
+for i in range(0, mrk.shape[0]):
+for j in range(0, mrk.shape[1]):
+transaction.append(mrk.values[i,j])
+transaction = np.array(transaction)
+df = pd.DataFrame(transaction, columns=['items'])
+df["incident_count"] = 1
+indexNames = df[df["items"] == "nan"].index
+df.drop(indexNames , inplace=True)
+df_table = df.groupby("items").sum().sort_values("incident_count", ascending=F
+alse).reset_index()
+df_table.head(10).style.background_gradient(cmap="Blues")
+df_table["all"] = "all"
+fig = px.treemap(df_table.head(30), path=['all', "items"], values='incident_co
+unt',color=df_table["incident_count"].head(30), hover_data=['items'],color_con
+tinuous_scale='ice')
+fig.show()
+transaction = []
+for i in range(mrk.shape[0]):
+transaction.append([str(mrk.values[i,j]) for j in range(mrk.shape[1])])
+transaction = np.array(transaction)
+top20 = df_table["items"].head(20).values
+array = []
+df_top20_multiple_record_check = pd.DataFrame(columns=top20)
+for i in range(0, len(top20)):
+array = []
+for j in range(0,transaction.shape[0]):
+array.append(np.count_nonzero(transaction[j]==top20[i]))
+if len(array) == len(mrk):
+df_top20_multiple_record_check[top20[i]] = array
+else:
+continue
+df_top20_multiple_record_check.head(10)
+df_top20_multiple_record_check.describe()
+transaction = []
+for i in range(0, mrk.shape[0]):
+transaction.append(mrk.values[i,0])
+transaction = np.array(transaction)
+df_first = pd.DataFrame(transaction, columns=["items"])
+df_first["incident_count"] = 1
+indexNames = df_first[df_first['items'] == "nan" ].index
+df_first.drop(indexNames , inplace=True)
+df_table_first = df_first.groupby("items").sum().sort_values("incident_count",
+ascending=False).reset_index()
+df_table_first["food"] = "food"
+df_table_first = df_table_first.truncate(before=-1, after=15)
+import warnings
+warnings.filterwarnings('ignore')
+plt.rcParams['figure.figsize'] = (20, 20)
+first_choice = nx.from_pandas_edgelist(df_table_first, source = 'food', target
+= "items", edge_attr = True)
+pos = nx.spring_layout(first_choice)
+nx.draw_networkx_nodes(first_choice, pos, node_size = 12500, node_color = "lav
+ender")
+nx.draw_networkx_edges(first_choice, pos, width = 3, alpha = 0.6, edge_color =
+'black')
+nx.draw_networkx_labels(first_choice, pos, font_size = 18, font_family = 'sans
+-serif')
+plt.axis('off')
+plt.grid()
+plt.title('Top Choices', fontsize = 25)
+plt.show()
+transaction = []
+for i in range(mrk.shape[0]):
+transaction.append([str(mrk.values[i,j]) for j in range(mrk.shape[1])])
+transaction = np.array(transaction)
+transaction
+te = TransactionEncoder()
+te_ary = te.fit(transaction).transform(transaction)
+dataset = pd.DataFrame(te_ary, columns=te.columns_)
+dataset
+first50 = df_table["items"].head(50).values
+dataset = dataset.loc[:,first50]
+dataset
+def encode_units(x):
+if x == False:
+return 0
+if x == True:
+return 1
+dataset = dataset.applymap(encode_units)
+dataset.head(10)
+frequent_itemsets = apriori(dataset, min_support=0.01, use_colnames=True)
+frequent_itemsets['length'] = frequent_itemsets['itemsets'].apply(lambda x: le
+n(x))
+frequent_itemsets
+frequent_itemsets[ (frequent_itemsets['length'] == 2) &
+(frequent_itemsets['support'] >= 0.05) ]
+frequent_itemsets[ (frequent_itemsets['length'] == 3) ].head()
+rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1.2)
+rules["antecedents_length"] = rules["antecedents"].apply(lambda x: len(x))
+rules["consequents_length"] = rules["consequents"].apply(lambda x: len(x))
+rules.sort_values("lift",ascending=False)
+rules.sort_values("confidence",ascending=False)
+rules[~rules["consequents"].str.contains("mineral water", regex=False) &
+~rules["antecedents"].str.contains("mineral water", regex=False)].sort_v
+alues("confidence", ascending=False).head(10)
+rules[rules["antecedents"].str.contains("ground beef", regex=False) & rules["a
+ntecedents_length"] == 1].sort_values("confidence", ascending=False).head(10)
+
+
+//**********Multilayer Neural Network*******
+import pandas as pd
+import numpy as np
+df = pd.read_csv(r"C:\Users\rohan\OneDrive\Desktop\Python Datasets\pima-indians-diabetes.csv", delimiter=',')
+df.head()
+x= df.iloc[:,:8]
+y= df.iloc[:,8]
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+#create model
+model = Sequential()
+model.add(Dense(12, input_dim=8, activation='relu'))
+
+#hidden layers
+model.add(Dense(8, activation='relu'))
+model.add(Dense(8, activation='relu'))
+
+#output layer
+model.add(Dense(1, activation='sigmoid'))
+#compile model
+model.compile(loss='binary_crossentropy', optimizer='adam',
+             metrics=['accuracy'])
+#train model
+model.fit(x, y, epochs = 100, batch_size=10)
+<keras.callbacks.History at 0x1f871d57580>
+#evaluate
+model.evaluate(x,y)
+model.summary()
+Model: "sequential"
+
+
